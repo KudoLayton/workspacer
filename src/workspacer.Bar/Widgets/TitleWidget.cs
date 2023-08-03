@@ -95,7 +95,8 @@ namespace workspacer.Bar.Widgets
         #region Title Generation
         public override IBarWidgetPart[] GetParts()
         {
-            var windows = ShowAllWindowTitles ? GetWindows() : new[] { GetWindow() };
+            bool windowsExist = GetWindow() != null;
+            var windows = ShowAllWindowTitles ? GetWindows() : windowsExist ? new[] { GetWindow() } : null;
             if (windows == null || !windows.Any())
             {
                 return Parts(Part(NoWindowMessage, null, fontname: FontName));
