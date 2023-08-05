@@ -247,5 +247,10 @@ namespace workspacer
         {
             return $"[{Handle}][{Title}][{Class}][{ProcessName}]";
         }
+
+        public bool IsNativeVisible() 
+        {
+            return Win32.IsWindowVisible(_handle);
+        }
     }
 }

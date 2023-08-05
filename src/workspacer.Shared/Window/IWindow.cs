@@ -56,5 +56,7 @@ namespace workspacer
         /// E.g. swapping windows in a workspace
         /// </summary>
         void NotifyUpdated();
+
+        bool IsNativeVisible();
     }
 }
