@@ -414,6 +414,14 @@ namespace workspacer
                 else
                 {
                     windows.ForEach(w => w.Hide());
+
+                    foreach (IWindow window in windows) 
+                    {
+                        if (window.IsNativeVisible()) 
+                        {
+                            Logger.Debug("{0}: try to hide the widnow, but doesn't work!", window.ProcessName);
+                        }
+                    }
                 }
                 OnLayoutCompleted?.Invoke(this);
             }
