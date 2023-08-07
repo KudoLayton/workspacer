@@ -33,6 +33,8 @@ namespace workspacer
 
         bool CanLayout { get; }
 
+        bool CanFocus { get; }
+
         bool IsFocused { get; }
         bool IsMinimized { get; }
         bool IsMaximized { get; }

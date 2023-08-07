@@ -150,6 +150,16 @@ namespace workspacer
             }
         }
 
+        public bool CanFocus
+        {
+            get
+            {
+                return _didManualHide ||
+                    (!Win32Helper.IsCloaked(_handle) &&
+                       Win32Helper.IsAppWindow(_handle) &&
+                       Win32Helper.IsAltTabWindow(_handle));
+            }
+        }
 
         public bool IsFocused => Win32.GetForegroundWindow() == _handle;
         public bool IsMinimized => Win32.IsIconic(_handle);

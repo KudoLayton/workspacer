@@ -51,7 +51,7 @@ namespace workspacer.FocusBorder
             // Disable border on moving windows for performance.
             if (focussed is not null && !focussed.IsMouseMoving)
             {
-                if (focussed.CanLayout)
+                if (focussed.CanFocus)
                     this._form.Execute(x => x.SetWindow(focussed));
                 if (!this._form.Read.Visible)
                     this._form.Execute(x => x.Show());
