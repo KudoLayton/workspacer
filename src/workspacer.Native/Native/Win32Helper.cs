@@ -66,5 +66,21 @@ namespace workspacer
         {
             FocusStealer.Steal(hWnd);
         }
+
+        public static bool IsDebuggedWindow(int processId) 
+        { 
+            IntPtr processHandle = Win32.OpenProcess(Win32.ProcessAccessFlag.QueryInformation, false, processId);
+            if (processHandle == IntPtr.Zero) 
+            {
+                return false;
+            }
+
+            bool result = false;
+
+            bool test = Win32.CheckRemoteDebuggerPresent(processHandle, ref result);
+
+            Win32.CloseHandle(processHandle);
+            return result;
+        }
     }
 }

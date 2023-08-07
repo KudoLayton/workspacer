@@ -252,5 +252,10 @@ namespace workspacer
         {
             return Win32.IsWindowVisible(_handle);
         }
+
+        public bool IsDebugged()
+        {
+            return Win32Helper.IsDebuggedWindow(_processId);
+        }
     }
 }

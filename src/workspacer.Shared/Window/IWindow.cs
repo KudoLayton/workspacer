@@ -58,5 +58,7 @@ namespace workspacer
         void NotifyUpdated();
 
         bool IsNativeVisible();
+
+        bool IsDebugged();
     }
 }
