@@ -144,10 +144,22 @@ namespace workspacer
                 return _didManualHide ||
                     (!Win32Helper.IsCloaked(_handle) &&
                        Win32Helper.IsAppWindow(_handle) &&
-                       Win32Helper.IsAltTabWindow(_handle));
+                       Win32Helper.IsAltTabWindow(_handle) &&
+                       !Win32Helper.IsDebuggedWindow(_processId) &&
+                       !Win32.IsHungAppWindow(_handle));
             }
         }
 
+        public bool CanFocus
+        {
+            get
+            {
+                return _didManualHide ||
+                    (!Win32Helper.IsCloaked(_handle) &&
+                       Win32Helper.IsAppWindow(_handle) &&
+                       Win32Helper.IsAltTabWindow(_handle));
+            }
+        }
 
         public bool IsFocused => Win32.GetForegroundWindow() == _handle;
         public bool IsMinimized => Win32.IsIconic(_handle);
@@ -251,6 +263,16 @@ namespace workspacer
         public bool IsNativeVisible() 
         {
             return Win32.IsWindowVisible(_handle);
+        }
+
+        public bool IsHung()
+        {
+            return Win32.IsHungAppWindow(_handle);
+        }
+
+        public bool IsDebugged()
+        {
+            return Win32Helper.IsDebuggedWindow(_processId);
         }
     }
 }
