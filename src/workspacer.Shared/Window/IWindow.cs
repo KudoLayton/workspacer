@@ -59,6 +59,8 @@ namespace workspacer
 
         bool IsNativeVisible();
 
+        bool IsHung();
+
         bool IsDebugged();
     }
 }
