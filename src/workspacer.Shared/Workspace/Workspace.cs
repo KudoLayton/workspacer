@@ -81,10 +81,6 @@ namespace workspacer
                 {
                     _windows.Add(window);
                 }
-                
-
-                if (layout)
-                    DoLayout();
             }
         }
 
@@ -100,9 +96,6 @@ namespace workspacer
                 }
 
                 _windows.Remove(window);
-
-                if (layout)
-                    DoLayout();
             }
         }
 
@@ -110,9 +103,6 @@ namespace workspacer
         {
             if (type == WindowUpdateType.Foreground)
                 _lastFocused = window;
-
-            if (layout)
-                DoLayout();
         }
 
         public void CloseFocusedWindow()
@@ -131,7 +121,6 @@ namespace workspacer
             {
                 _layoutIndex--;
             }
-            DoLayout();
         }
 
         public void NextLayoutEngine()
@@ -144,13 +133,11 @@ namespace workspacer
             {
                 _layoutIndex++;
             }
-            DoLayout();
         }
 
         public void ResetLayout()
         {
             GetLayoutEngine().ResetPrimaryArea();
-            DoLayout();
         }
 
         public void FocusLastFocusedWindow()
@@ -298,24 +285,20 @@ namespace workspacer
         public void ShrinkPrimaryArea()
         {
             GetLayoutEngine().ShrinkPrimaryArea();
-            DoLayout();
         }
         public void ExpandPrimaryArea()
         {
             GetLayoutEngine().ExpandPrimaryArea();
-            DoLayout();
         }
 
         public void IncrementNumberOfPrimaryWindows()
         {
             GetLayoutEngine().IncrementNumInPrimary();
-            DoLayout();
         }
 
         public void DecrementNumberOfPrimaryWindows()
         {
             GetLayoutEngine().DecrementNumInPrimary();
-            DoLayout();
         }
 
         public void SwapWindowToPoint(IWindow window, int x, int y)
@@ -452,8 +435,6 @@ namespace workspacer
                 right.NotifyUpdated();
                 left.NotifyUpdated();
             }
-
-            DoLayout();
         }
 
         private ILayoutEngine GetLayoutEngine()

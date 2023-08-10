@@ -65,9 +65,6 @@ namespace workspacer
                     _context.WorkspaceContainer.AssignWorkspaceToMonitor(currentWorkspace, sourceMonitor);
                     _context.WorkspaceContainer.AssignWorkspaceToMonitor(targetWorkspace, destMonitor);
 
-                    currentWorkspace.DoLayout();
-                    targetWorkspace.DoLayout();
-
                     WorkspaceUpdated?.Invoke();
 
                     targetWorkspace.FocusLastFocusedWindow();
@@ -98,9 +95,6 @@ namespace workspacer
             _context.WorkspaceContainer.AssignWorkspaceToMonitor(currentWorkspace, sourceMonitor);
             _context.WorkspaceContainer.AssignWorkspaceToMonitor(targetWorkspace, destMonitor);
 
-            currentWorkspace.DoLayout();
-            targetWorkspace.DoLayout();
-
             WorkspaceUpdated?.Invoke();
 
             targetWorkspace.FocusLastFocusedWindow();
@@ -118,9 +112,6 @@ namespace workspacer
             _context.WorkspaceContainer.AssignWorkspaceToMonitor(currentWorkspace, sourceMonitor);
             _context.WorkspaceContainer.AssignWorkspaceToMonitor(targetWorkspace, destMonitor);
 
-            currentWorkspace.DoLayout();
-            targetWorkspace.DoLayout();
-
             WorkspaceUpdated?.Invoke();
 
             targetWorkspace.FocusLastFocusedWindow();
@@ -137,9 +128,6 @@ namespace workspacer
             _lastWorkspace = currentWorkspace;
             _context.WorkspaceContainer.AssignWorkspaceToMonitor(currentWorkspace, sourceMonitor);
             _context.WorkspaceContainer.AssignWorkspaceToMonitor(targetWorkspace, destMonitor);
-
-            currentWorkspace.DoLayout();
-            targetWorkspace.DoLayout();
 
             WorkspaceUpdated?.Invoke();
 
@@ -461,7 +449,6 @@ namespace workspacer
                         _windowsToWorkspaces[window] = workspace;
 
                         workspace.SwapWindowToPoint(window, x, y);
-                        currentWorkspace.DoLayout();
                     }
                 }
             }

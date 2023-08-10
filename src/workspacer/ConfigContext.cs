@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using workspacer.Shared.TaskManager;
 
 namespace workspacer
 {
@@ -24,6 +25,9 @@ namespace workspacer
 
         public WindowsManager Windows { get; set; }
         IWindowsManager IConfigContext.Windows { get { return Windows; } }
+
+        public TaskManager Tasks { get; set; }
+        ITaskManager IConfigContext.Tasks { get { return Tasks; } }
 
         public IWorkspaceContainer WorkspaceContainer { get; set; }
         public IWindowRouter WindowRouter { get; set; }
@@ -56,10 +60,11 @@ namespace workspacer
 
             SystemEvents.DisplaySettingsChanged += HandleDisplaySettingsChanged;
 
+            Tasks = new TaskManager();
             Plugins = new PluginManager();
             SystemTray = new SystemTrayManager();
             Workspaces = new WorkspaceManager(this);
-            Windows = new WindowsManager();
+            Windows = new WindowsManager(this);
             Keybinds = new KeybindManager(this);
 
             WorkspaceContainer = new WorkspaceContainer(this);

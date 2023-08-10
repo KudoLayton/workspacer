@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using workspacer.Shared.TaskManager;
 
 namespace workspacer
 {
@@ -17,6 +18,7 @@ namespace workspacer
         IWorkspaceManager Workspaces { get; }
         ISystemTrayManager SystemTray { get; }
         IWindowsManager Windows { get; }
+        ITaskManager Tasks { get; }
 
         IWorkspaceContainer WorkspaceContainer { get; set; }
         IWindowRouter WindowRouter { get; set; }

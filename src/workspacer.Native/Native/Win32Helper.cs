@@ -82,5 +82,24 @@ namespace workspacer
             Win32.CloseHandle(processHandle);
             return result;
         }
+
+        public static void BindWindowsHookEx(IConfigContext configContext, int hookType, Win32.HookProc lpfn, IntPtr hMod, int dwThreadId)
+        {
+            Win32.HookProc enqueueTask = (int code, UIntPtr wParam, IntPtr lParam) => {
+                configContext.Tasks.QueueTask(new Action(()=>lpfn(code, wParam, lParam)));
+                return 0;
+            };
+            Win32.SetWindowsHookEx(hookType, enqueueTask, hMod, dwThreadId);
+        }
+
+        public static void BindWindowsEventHook(IConfigContext configContext, Win32.EVENT_CONSTANTS eventMin, Win32.EVENT_CONSTANTS eventMax, IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags)
+        {
+            WinEventDelegate enqueueTask = (IntPtr hWinEventHook, Win32.EVENT_CONSTANTS eventType, IntPtr hwnd, Win32.OBJID idObject, int idChild, uint dwEventThread, uint dwmsEventTime) =>
+            {
+                configContext.Tasks.QueueTask(new Action(() => lpfnWinEventProc(hWinEventHook, eventType, hwnd, idObject, idChild, dwEventThread, dwmsEventTime)));
+            };
+            Win32.SetWinEventHook(eventMin, eventMax, hmodWinEventProc, enqueueTask, idProcess, idThread, dwFlags);
+        }
+
     }
 }

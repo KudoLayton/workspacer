@@ -23,6 +23,8 @@ namespace workspacer
         private readonly object _mouseMoveLock = new object();
         private Win32.HookProc _mouseHook;
 
+        private readonly IConfigContext _context;
+
         private Dictionary<WindowsWindow, bool> _floating;
 
         /// <summary>
@@ -56,11 +58,12 @@ namespace workspacer
 
         public IEnumerable<IWindow> Windows => _windows.Values;
 
-        public WindowsManager()
+        public WindowsManager(IConfigContext context)
         {
             _windows = new Dictionary<IntPtr, WindowsWindow>();
             _floating = new Dictionary<WindowsWindow, bool>();
             _hookDelegate = new WinEventDelegate(WindowHook);
+            _context = context;
         }
 
         public void Initialize()
@@ -185,41 +188,43 @@ namespace workspacer
 
         private void WindowHook(IntPtr hWinEventHook, Win32.EVENT_CONSTANTS eventType, IntPtr hwnd, Win32.OBJID idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
-            if (EventWindowIsValid(idChild, idObject, hwnd))
+            if (!EventWindowIsValid(idChild, idObject, hwnd))
             {
-                switch (eventType)
-                {
-                    case Win32.EVENT_CONSTANTS.EVENT_OBJECT_SHOW:
-                        RegisterWindow(hwnd);
-                        break;
-                    case Win32.EVENT_CONSTANTS.EVENT_OBJECT_DESTROY:
-                        UnregisterWindow(hwnd);
-                        break;
-                    case Win32.EVENT_CONSTANTS.EVENT_OBJECT_CLOAKED:
-                        UpdateWindow(hwnd, WindowUpdateType.Hide);
-                        break;
-                    case Win32.EVENT_CONSTANTS.EVENT_OBJECT_UNCLOAKED:
-                        UpdateWindow(hwnd, WindowUpdateType.Show);
-                        break;
-                    case Win32.EVENT_CONSTANTS.EVENT_SYSTEM_MINIMIZESTART:
-                        UpdateWindow(hwnd, WindowUpdateType.MinimizeStart);
-                        break;
-                    case Win32.EVENT_CONSTANTS.EVENT_SYSTEM_MINIMIZEEND:
-                        UpdateWindow(hwnd, WindowUpdateType.MinimizeEnd);
-                        break;
-                    case Win32.EVENT_CONSTANTS.EVENT_SYSTEM_FOREGROUND:
-                        UpdateWindow(hwnd, WindowUpdateType.Foreground);
-                        break;
-                    case Win32.EVENT_CONSTANTS.EVENT_SYSTEM_MOVESIZESTART:
-                        StartWindowMove(hwnd);
-                        break;
-                    case Win32.EVENT_CONSTANTS.EVENT_SYSTEM_MOVESIZEEND:
-                        EndWindowMove(hwnd);
-                        break;
-                    case Win32.EVENT_CONSTANTS.EVENT_OBJECT_LOCATIONCHANGE:
-                        WindowMove(hwnd);
-                        break;
-                }
+                return;
+            }
+
+            switch (eventType)
+            {
+                case Win32.EVENT_CONSTANTS.EVENT_OBJECT_SHOW:
+                    _context.Tasks.QueueTask(new Action(() => RegisterWindow(hwnd)));
+                    break;
+                case Win32.EVENT_CONSTANTS.EVENT_OBJECT_DESTROY:
+                    _context.Tasks.QueueTask(new Action(() => UnregisterWindow(hwnd)));
+                    break;
+                case Win32.EVENT_CONSTANTS.EVENT_OBJECT_CLOAKED:
+                    _context.Tasks.QueueTask(new Action(() => UpdateWindow(hwnd, WindowUpdateType.Hide)));
+                    break;
+                case Win32.EVENT_CONSTANTS.EVENT_OBJECT_UNCLOAKED:
+                    _context.Tasks.QueueTask(new Action(() => UpdateWindow(hwnd, WindowUpdateType.Show)));
+                    break;
+                case Win32.EVENT_CONSTANTS.EVENT_SYSTEM_MINIMIZESTART:
+                    _context.Tasks.QueueTask(new Action(() => UpdateWindow(hwnd, WindowUpdateType.MinimizeStart)));
+                    break;
+                case Win32.EVENT_CONSTANTS.EVENT_SYSTEM_MINIMIZEEND:
+                    _context.Tasks.QueueTask(new Action(() => UpdateWindow(hwnd, WindowUpdateType.MinimizeEnd)));
+                    break;
+                case Win32.EVENT_CONSTANTS.EVENT_SYSTEM_FOREGROUND:
+                    _context.Tasks.QueueTask(new Action(() => UpdateWindow(hwnd, WindowUpdateType.Foreground)));
+                    break;
+                case Win32.EVENT_CONSTANTS.EVENT_SYSTEM_MOVESIZESTART:
+                    _context.Tasks.QueueTask(new Action(() => StartWindowMove(hwnd)));
+                    break;
+                case Win32.EVENT_CONSTANTS.EVENT_SYSTEM_MOVESIZEEND:
+                    _context.Tasks.QueueTask(new Action(() => EndWindowMove(hwnd)));
+                    break;
+                case Win32.EVENT_CONSTANTS.EVENT_OBJECT_LOCATIONCHANGE:
+                    _context.Tasks.QueueTask(new Action(() => WindowMove(hwnd)));
+                    break;
             }
         }
 
