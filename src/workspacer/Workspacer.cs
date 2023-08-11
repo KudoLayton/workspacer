@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Windows.Forms;
 using Application = System.Windows.Forms.Application;
 
@@ -82,6 +83,18 @@ namespace workspacer
             {
                 workspace.DoLayout();
             }
+
+            // run worker thread
+            var workerThread = new Thread(() =>
+            {
+                while (true)
+                {
+                    _context.Tasks.RunTasks();
+                    Thread.Sleep(50);
+                }
+            });
+            workerThread.Name = "worker thread";
+            workerThread.Start();
 
             // notify plugins that config is done
             _context.Plugins.AfterConfig(_context);

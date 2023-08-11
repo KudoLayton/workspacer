@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace workspacer.Shared.TaskManager
 {
-    public class TaskManager
+    public class TaskManager : ITaskManager
     {
         private ConcurrentQueue<Action> tasks = new ConcurrentQueue<Action>();
 
