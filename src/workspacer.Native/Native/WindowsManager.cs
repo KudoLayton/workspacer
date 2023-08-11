@@ -66,6 +66,8 @@ namespace workspacer
             _context = context;
         }
 
+        private List<BlacklistConditionDelegate> blacklistConditions = new List<BlacklistConditionDelegate>();
+
         public void Initialize()
         {
             Win32.SetWinEventHook(Win32.EVENT_CONSTANTS.EVENT_OBJECT_DESTROY, Win32.EVENT_CONSTANTS.EVENT_OBJECT_SHOW, IntPtr.Zero, _hookDelegate, 0, 0, 0);
@@ -239,6 +241,17 @@ namespace workspacer
             {
                 var window = new WindowsWindow(handle);
 
+                bool isBlackListed = false;
+                foreach(var condition in blacklistConditions)
+                {
+                    isBlackListed |= condition(window);
+                }
+
+                if (isBlackListed) 
+                {
+                    window.SetBlacklist(true);
+                }
+
                 if (!ShouldIgnoreWindow(window))
                 {
                     window.WindowFocused += (sender) => HandleWindowFocused(sender);
@@ -383,6 +396,11 @@ namespace workspacer
             } catch { }
 
             return window.Class == "ConsoleWindowClass" && id == Process.GetCurrentProcess().Id;
+        }
+
+        public void AddBlacklistCondition(BlacklistConditionDelegate condition)
+        {
+            blacklistConditions.Add(condition);
         }
     }
 }
