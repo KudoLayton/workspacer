@@ -64,7 +64,7 @@ namespace workspacer
             Plugins = new PluginManager();
             SystemTray = new SystemTrayManager();
             Workspaces = new WorkspaceManager(this);
-            Windows = new WindowsManager();
+            Windows = new WindowsManager(this);
             Keybinds = new KeybindManager(this);
 
             WorkspaceContainer = new WorkspaceContainer(this);
