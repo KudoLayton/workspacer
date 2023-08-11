@@ -15,6 +15,7 @@ namespace workspacer
 
         private IntPtr _handle;
         private bool _didManualHide;
+        private bool _isBlackListed;
 
         public event IWindowDelegate WindowClosed;
         public event IWindowDelegate WindowUpdated;
@@ -27,6 +28,7 @@ namespace workspacer
         public WindowsWindow(IntPtr handle)
         {
             _handle = handle;
+            _isBlackListed = false;
 
             try
             {
@@ -53,6 +55,11 @@ namespace workspacer
                 _processName = "";
                 _processFileName = "";
             }
+        }
+
+        public void SetBlacklist (bool blacklist)
+        {
+            _isBlackListed = blacklist;
         }
 
         public bool DidManualHide => _didManualHide;
@@ -142,7 +149,8 @@ namespace workspacer
             get
             {
                 return _didManualHide ||
-                    (!Win32Helper.IsCloaked(_handle) &&
+                    ( !_isBlackListed &&
+                        !Win32Helper.IsCloaked(_handle) &&
                        Win32Helper.IsAppWindow(_handle) &&
                        Win32Helper.IsAltTabWindow(_handle) &&
                        !Win32Helper.IsDebuggedWindow(_processId) &&
