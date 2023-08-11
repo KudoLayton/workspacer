@@ -46,10 +46,10 @@ namespace workspacer
 
             var thread = new Thread(() =>
             {
-                //Win32.SetWindowsHookEx(Win32.WH_KEYBOARD_LL, _kbdHook, Process.GetCurrentProcess().MainModule.BaseAddress, 0);
-                //Win32.SetWindowsHookEx(Win32.WH_MOUSE_LL, _mouseHook, Process.GetCurrentProcess().MainModule.BaseAddress, 0);
-                Win32Helper.BindWindowsHookEx(_context, Win32.WH_KEYBOARD_LL, _kbdHook, Process.GetCurrentProcess().MainModule.BaseAddress, 0);
-                Win32Helper.BindWindowsHookEx(_context, Win32.WH_MOUSE_LL, _mouseHook, Process.GetCurrentProcess().MainModule.BaseAddress, 0);
+                Win32.SetWindowsHookEx(Win32.WH_KEYBOARD_LL, _kbdHook, Process.GetCurrentProcess().MainModule.BaseAddress, 0);
+                Win32.SetWindowsHookEx(Win32.WH_MOUSE_LL, _mouseHook, Process.GetCurrentProcess().MainModule.BaseAddress, 0);
+                //Win32Helper.BindWindowsHookEx(_context, Win32.WH_KEYBOARD_LL, _kbdHook, Process.GetCurrentProcess().MainModule.BaseAddress, 0);
+                //Win32Helper.BindWindowsHookEx(_context, Win32.WH_MOUSE_LL, _mouseHook, Process.GetCurrentProcess().MainModule.BaseAddress, 0);
                 Application.Run();
             });
             thread.Name = "KeybindManager";
@@ -181,36 +181,67 @@ You can either change your custom hotkey or reassign the default hotkey";
 
         private IntPtr MouseHook(int nCode, UIntPtr wParam, IntPtr lParam)
         {
-            if (nCode == 0 && (uint)wParam == Win32.WM_LBUTTONDOWN) { if (DoMouseEvent(MouseEvent.LButtonDown)) return new IntPtr(1); }
-            else if (nCode == 0 && (uint)wParam == Win32.WM_LBUTTONUP) { if (DoMouseEvent(MouseEvent.LButtonUp)) return new IntPtr(1); }
-            else if (nCode == 0 && (uint)wParam == Win32.WM_MOUSEMOVE) { if (DoMouseEvent(MouseEvent.MouseMove)) return new IntPtr(1); }
-            else if (nCode == 0 && (uint)wParam == Win32.WM_MOUSEWHEEL) { if (DoMouseEvent(MouseEvent.MouseWheel)) return new IntPtr(1); }
-            else if (nCode == 0 && (uint)wParam == Win32.WM_MOUSEHWHEEL) { if (DoMouseEvent(MouseEvent.MouseHWheel)) return new IntPtr(1); }
-            else if (nCode == 0 && (uint)wParam == Win32.WM_RBUTTONDOWN) { if (DoMouseEvent(MouseEvent.RButtonDown)) return new IntPtr(1); }
-            else if (nCode == 0 && (uint)wParam == Win32.WM_RBUTTONUP) { if (DoMouseEvent(MouseEvent.RButtonUp)) return new IntPtr(1); }
+            var EventLookup = new Dictionary<uint, MouseEvent>()
+            {
+                { Win32.WM_LBUTTONDOWN, MouseEvent.LButtonDown },
+                { Win32.WM_LBUTTONUP, MouseEvent.LButtonUp },
+                { Win32.WM_MOUSEMOVE, MouseEvent.MouseMove },
+                { Win32.WM_MOUSEWHEEL, MouseEvent.MouseWheel },
+                { Win32.WM_MOUSEHWHEEL, MouseEvent.MouseHWheel },
+                { Win32.WM_RBUTTONDOWN, MouseEvent.RButtonDown },
+                { Win32.WM_RBUTTONUP, MouseEvent.RButtonUp }
+            };
+
+            bool IsNextHook = nCode != 0;
+            IsNextHook &= !EventLookup.ContainsKey((uint)wParam);
+
+            if (IsNextHook)
+            {
+                return Win32.CallNextHookEx(IntPtr.Zero, nCode, wParam, lParam);
+            }
+
+            var mouseEvent = EventLookup[(uint)wParam];
+            if (DoMouseEvent(mouseEvent))
+            {
+                return new IntPtr(1);
+            }
             return Win32.CallNextHookEx(IntPtr.Zero, nCode, wParam, lParam);
         }
 
         private bool DoKeyboardEvent(Keys key, KeyModifiers modifiersPressed)
         {
-            if (modifiersPressed != KeyModifiers.None)
+            if (modifiersPressed == KeyModifiers.None)
             {
-                var sub = new Sub(modifiersPressed, key);
-                if (_kbdSubs.ContainsKey(sub))
-                {
-                    _kbdSubs[sub]?.Binding.Invoke();
-                    return true;
-                }
+                return false;
             }
-            return false;
+
+            var sub = new Sub(modifiersPressed, key);
+            if (!_kbdSubs.ContainsKey(sub))
+            {
+                return false;
+            }
+
+            if (_kbdSubs[sub] == null)
+            {
+                  return false;
+            }
+
+            _context.Tasks.QueueTask(new Action(()=> _kbdSubs[sub].Binding.Invoke()));
+            return true;
         }
 
         private bool DoMouseEvent(MouseEvent evt)
         {
-            if (_mouseSubs.ContainsKey(evt))
+            if (!_mouseSubs.ContainsKey(evt)) 
+            {                 
+                return false;
+           }
+
+            if (_mouseSubs[evt] != null)
             {
-                _mouseSubs[evt]?.Binding.Invoke();
+                _context.Tasks.QueueTask(new Action(()=>_mouseSubs[evt].Binding.Invoke()));
             }
+
             return false;
         }
 
