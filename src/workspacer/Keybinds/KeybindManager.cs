@@ -193,7 +193,7 @@ You can either change your custom hotkey or reassign the default hotkey";
             };
 
             bool IsNextHook = nCode != 0;
-            IsNextHook &= !EventLookup.ContainsKey((uint)wParam);
+            IsNextHook |= !EventLookup.ContainsKey((uint)wParam);
 
             if (IsNextHook)
             {
