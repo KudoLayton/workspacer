@@ -373,8 +373,9 @@ namespace workspacer
             }
             return null;
         }
+        public void DoLayout() { }
 
-        public void DoLayout()
+        public void DoLayoutReal()
         {
             // Skip layout if the focussed window is fullscreen.
             if (FocusedWindow?.IsFullscreen ?? false)

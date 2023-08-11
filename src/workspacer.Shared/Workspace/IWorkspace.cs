@@ -129,6 +129,7 @@ namespace workspacer
         /// force a layout of the workspace
         /// </summary>
         void DoLayout();
+        void DoLayoutReal();
 
         /// <summary>
         /// an event invoked after a layout has been forced.

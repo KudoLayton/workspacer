@@ -16,12 +16,19 @@ namespace workspacer.Shared.TaskManager
             tasks.Enqueue(task);
         }
 
-        public void RunTasks()
+        public bool RunTasks()
         {
+            if (tasks.IsEmpty)
+            {
+                return false;
+            }
+
             while (tasks.TryDequeue(out Action task))
             {
                 task();
             }
+
+            return true;
         }
     }
 }

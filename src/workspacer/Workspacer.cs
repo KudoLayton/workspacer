@@ -81,7 +81,7 @@ namespace workspacer
             // force first layout
             foreach (var workspace in _context.WorkspaceContainer.GetAllWorkspaces())
             {
-                workspace.DoLayout();
+                workspace.DoLayoutReal();
             }
 
             // run worker thread
@@ -89,8 +89,15 @@ namespace workspacer
             {
                 while (true)
                 {
-                    _context.Tasks.RunTasks();
-                    Thread.Sleep(50);
+                    bool AnyTask = _context.Tasks.RunTasks();
+                    if (AnyTask)
+                    {
+                        foreach (var workspace in _context.WorkspaceContainer.GetAllWorkspaces())
+                        {
+                            workspace.DoLayoutReal();
+                        }
+                    }
+                    Thread.Sleep(100);
                 }
             });
             workerThread.Name = "worker thread";
