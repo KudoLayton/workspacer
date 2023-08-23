@@ -66,6 +66,15 @@ namespace workspacer.Bar
 
         public void Draw()
         {
+            if (_monitor == _configContext.MonitorContainer.FocusedMonitor)
+            { 
+                _panel.BackColor = ColorToColor(Color.Gray);
+            }
+            else
+            {
+                _panel.BackColor = ColorToColor(_defaultBack);
+            }
+
             if (!_widgets.Any(w => w.IsDirty()))
             {
                 return;

@@ -11,6 +11,10 @@ namespace workspacer
 
         private Dictionary<IMonitor, int> _monitorMap;
 
+        private bool _isFocusedMonitorOverrided = false;
+
+        private IMonitor _OverridedFocusedMonitor;
+
         public NativeMonitorContainer()
         {
             var screens = Screen.AllScreens;
@@ -37,7 +41,21 @@ namespace workspacer
 
         public int NumMonitors => _monitors.Length;
 
-        public IMonitor FocusedMonitor { get; set; }
+        private IMonitor _FocusedMonitor;
+
+        public IMonitor FocusedMonitor 
+        { 
+            get 
+            {
+                return _isFocusedMonitorOverrided ? _OverridedFocusedMonitor : _FocusedMonitor;
+            }
+
+            set 
+            {
+                _isFocusedMonitorOverrided = false;
+                _FocusedMonitor = value;
+            } 
+        }
 
         public IMonitor[] GetAllMonitors()
         {
@@ -80,6 +98,17 @@ namespace workspacer
                 index = index - 1;
 
             return _monitors[index];
+        }
+
+        public void OverrideFocusedMonitor(IMonitor monitor) 
+        { 
+            _isFocusedMonitorOverrided = true;
+            _OverridedFocusedMonitor = monitor;
+        }
+
+        public void DisableOverrideFocusedMonitor()
+        {
+            _isFocusedMonitorOverrided = false;
         }
     }
 }

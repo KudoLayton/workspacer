@@ -11,8 +11,7 @@ namespace workspacer
 
         private IConfigContext _context;
         private IWorkspace _lastWorkspace;
-        public IWorkspace FocusedWorkspace => _isOverrideFocusedWorkspace ? OverrideFocusedWorkspace :
-            _context.WorkspaceContainer
+        public IWorkspace FocusedWorkspace => _context.WorkspaceContainer
             .GetWorkspaceForMonitor(_context.MonitorContainer.FocusedMonitor);
 
         private Dictionary<IWindow, IWorkspace> _windowsToWorkspaces;
@@ -24,14 +23,10 @@ namespace workspacer
         public event WindowMovedDelegate WindowMoved;
         public event FocusedMonitorUpdatedDelegate FocusedMonitorUpdated;
 
-        public bool _isOverrideFocusedWorkspace;
-        public IWorkspace OverrideFocusedWorkspace;
-
         public WorkspaceManager(IConfigContext context)
         {
             _context = context;
             _windowsToWorkspaces = new Dictionary<IWindow, IWorkspace>();
-            _isOverrideFocusedWorkspace = false;
         }
 
         public void SwitchToWindow(IWindow window)
@@ -385,8 +380,8 @@ namespace workspacer
                 WindowRemoved?.Invoke(window, workspace);
                 if (workspace.ManagedWindows.Count == 0)
                 {
-                    _isOverrideFocusedWorkspace = true;
-                    OverrideFocusedWorkspace = workspace;
+                    var monitor = _context.WorkspaceContainer.GetCurrentMonitorForWorkspace(workspace);
+                    _context.MonitorContainer.OverrideFocusedMonitor(monitor);
                 }
             }
         }
@@ -396,8 +391,7 @@ namespace workspacer
             if (_windowsToWorkspaces.ContainsKey(window))
             {
                 Logger.Trace("UpdateWindow({0})", window);
-                var workspace = _isOverrideFocusedWorkspace ? OverrideFocusedWorkspace : _windowsToWorkspaces[window];
-                _isOverrideFocusedWorkspace = false;
+                var workspace = _windowsToWorkspaces[window];
                 if (window.IsFocused)
                 {
                     var monitor = _context.WorkspaceContainer.GetCurrentMonitorForWorkspace(workspace);

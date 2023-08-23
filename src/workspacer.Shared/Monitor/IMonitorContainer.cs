@@ -10,5 +10,9 @@
         IMonitor GetMonitorAtRect(int x, int y, int width, int height);
         IMonitor GetPreviousMonitor();
         IMonitor GetNextMonitor();
+
+        void OverrideFocusedMonitor(IMonitor monitor);
+
+        void DisableOverrideFocusedMonitor();
     }
 }
